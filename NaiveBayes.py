@@ -1,65 +1,65 @@
 #coding:utf-8
-
-from collections import defaultdict
 import math
+import sys
+from collections import defaultdict
 
 class NaiveBayes:
-
+    """Multinomial Naive Bayes"""
     def __init__(self):
-        self.vocabularies    = set() # 重複なしの語彙
-        self.categories      = set() # 重複なしのカテゴリ
-        self.category_count  = {}    # カテゴリの出現回数, category_count[cat]
-        self.word_count      = {}    # カテゴリ毎の単語出現回数, word_count[cat]
-
-
+        self.categories = set()     # カテゴリの集合
+        self.vocabularies = set()   # ボキャブラリの集合
+        self.wordcount = {}         # wordcount[cat][word] カテゴリでの単語の出現回数
+        self.catcount = {}          # catcount[cat] カテゴリの出現回数
+        self.denominator = {}       # denominator[cat] P(word|cat)の分母の値
+    
     def train(self, data):
-        self.category_count = defaultdict(lambda: 0)
-
+        """ナイーブベイズ分類器の訓練"""
+        # 文書集合からカテゴリを抽出して辞書を初期化
         for d in data:
-            category = d[0]
-            self.categories.add(category) # カテゴリの追加
-            self.category_count[category] += 1
-
-            for word in d[1:]: # 語彙の追加
+            cat = d[0]
+            self.categories.add(cat)
+        for cat in self.categories:
+            self.wordcount[cat] = defaultdict(int)
+            self.catcount[cat] = 0
+        # 文書集合からカテゴリと単語をカウント
+        for d in data:
+            cat, doc = d[0], d[1:]
+            self.catcount[cat] += 1
+            for word in doc:
                 self.vocabularies.add(word)
-
-        for category in self.categories:
-            self.word_count[category]  = defaultdict(lambda: 0)
-
-        for d in data:
-            category = d[0]
-            for word in d[1:]:
-                self.word_count[category][word] += 1
-
-
-    def word_probability(self, word, category):
-        '''単語が与えられた時のカテゴリである確率, P(word|cat)'''
-        # ラプラススムージング を適用
-        word_count       = self.word_count[category][word] + 1
-        vocabulary_count = sum(self.word_count[category].values()) + len(self.vocabularies)
-        return float(word_count) / float(vocabulary_count)
-
-
-    def score(self, words, category):
-        '''文書(単語)が与えられたときのカテゴリである確率'''
-        documents_count = sum(self.category_count.values())
-        score = math.log(float(self.category_count[category]) / documents_count)
-
-        for word in words:
-            score += math.log(self.word_probability(word, category))
-
-        # logの底が10なのでマイナスになるから+にしちゃう
-        return score * (-1)
-
-
-    def classify(self, words):
-        '''P(cat|doc)が最も大きなカテゴリを返す'''
-        best  = None
-        value = 0
-
-        for category in self.categories:
-            v = self.score(words, category)
-            if v > value:
-                best  = category
-                value = v
+                self.wordcount[cat][word] += 1
+        # 単語の条件付き確率の分母の値をあらかじめ一括計算しておく（高速化のため）
+        for cat in self.categories:
+            self.denominator[cat] = sum(self.wordcount[cat].values()) + len(self.vocabularies)
+    
+    def classify(self, doc):
+        """事後確率の対数 log(P(cat|doc)) がもっとも大きなカテゴリを返す"""
+        best = None
+        # max = -sys.maxint ←python3から削除された定数
+        max = -9223372036854775807
+        for cat in self.catcount.keys():
+            p = self.score(doc, cat)
+            if p > max:
+                max = p
+                best = cat
         return best
+    
+    def wordProb(self, word, cat):
+        """単語の条件付き確率 P(word|cat) を求める"""
+        # ラプラススムージングを適用
+        # wordcount[cat]はdefaultdict(int)なのでカテゴリに存在しなかった単語はデフォルトの0を返す
+        # 分母はtrain()の最後で一括計算済み
+        return float(self.wordcount[cat][word] + 1) / float(self.denominator[cat])
+    
+    def score(self, doc, cat):
+        """文書が与えられたときのカテゴリの事後確率の対数 log(P(cat|doc)) を求める"""
+        total = sum(self.catcount.values())  # 総文書数
+        score = math.log(float(self.catcount[cat]) / total)  # log P(cat)
+        for word in doc:
+            # logをとるとかけ算は足し算になる
+            score += math.log(self.wordProb(word, cat))  # log P(word|cat)
+        return score
+    
+    def __str__(self):
+        total = sum(self.catcount.values())  # 総文書数
+        return "documents: %d, vocabularies: %d, categories: %d" % (total, len(self.vocabularies), len(self.categories))
