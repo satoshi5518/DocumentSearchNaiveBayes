@@ -24,24 +24,18 @@ nb.train(fc.trainingDataList)
 #         print("( category->" + category + " vocabularies->" + vocabulary + " ) " + str(nb.wordProb(vocabulary,category)))
 
 # 学習データの生成
-# fc.exportLearningArrayCSV("categories.csv",nb.categories) # カテゴリの集合
-# fc.exportLearningArrayCSV("vocabularies.csv",nb.vocabularies) # ボキャブラリの集合
-# fc.exportLearningAssArrayListCSV("wordcount.csv",nb.wordcount) # カテゴリでの単語の出現回数
-# fc.exportLearningAssArrayCSV("catcount.csv",nb.catcount) # カテゴリの出現回数
-# fc.exportLearningAssArrayCSV("denominator.csv",nb.denominator) # P(word|cat)の分母の値
-
-# print(nb.categories)
-# print(nb.vocabularies)
-# print(nb.wordcount)
-# print(nb.catcount)
-# print(nb.denominator)
+fc.exportLearningArrayCSV("categories.csv",nb.categories) # カテゴリの集合
+fc.exportLearningArrayCSV("vocabularies.csv",nb.vocabularies) # ボキャブラリの集合
+fc.exportLearningAssArrayListCSV("wordcount.csv",nb.wordcount) # カテゴリでの単語の出現回数
+fc.exportLearningAssArrayCSV("catcount.csv",nb.catcount) # カテゴリの出現回数
+fc.exportLearningAssArrayCSV("denominator.csv",nb.denominator) # P(word|cat)の分母の値
 
 # 学習データの読み込み
-# nb.categories = fc.importLearningArrayCSV("categories.csv") # カテゴリの集合
-# nb.vocabularies = fc.importLearningArrayCSV("vocabularies.csv") # ボキャブラリの集合
-# nb.wordcount = fc.importLearningAssArrayListCSV("wordcount.csv") # カテゴリでの単語の出現回数
-# nb.catcount = fc.importLearningAssArrayCSV("catcount.csv") # カテゴリの出現回数
-# nb.denominator = fc.importLearningAssArrayCSV("denominator.csv") # P(word|cat)の分母の値
+nb.categories = fc.importLearningArrayCSV("categories.csv") # カテゴリの集合
+nb.vocabularies = fc.importLearningArrayCSV("vocabularies.csv") # ボキャブラリの集合
+nb.wordcount = fc.importLearningAssArrayListCSV("wordcount.csv") # カテゴリでの単語の出現回数
+nb.catcount = fc.importLearningAssArrayCSV("catcount.csv") # カテゴリの出現回数
+nb.denominator = fc.importLearningAssArrayCSV("denominator.csv") # P(word|cat)の分母の値
 
 # print(nb.categories)
 # print(nb.vocabularies)
