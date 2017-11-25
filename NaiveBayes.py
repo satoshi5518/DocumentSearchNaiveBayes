@@ -5,6 +5,8 @@ from collections import defaultdict
 
 class NaiveBayes:
     """Multinomial Naive Bayes"""
+
+    ########## 初期処理 ##########
     def __init__(self):
         self.categories = set()     # カテゴリの集合
         self.vocabularies = set()   # ボキャブラリの集合
@@ -12,6 +14,7 @@ class NaiveBayes:
         self.catcount = {}          # catcount[cat] カテゴリの出現回数
         self.denominator = {}       # denominator[cat] P(word|cat)の分母の値
     
+    ########## 訓練処理 ##########
     def train(self, data):
         """ナイーブベイズ分類器の訓練"""
         # 文書集合からカテゴリを抽出して辞書を初期化
@@ -32,6 +35,7 @@ class NaiveBayes:
         for cat in self.categories:
             self.denominator[cat] = sum(self.wordcount[cat].values()) + len(self.vocabularies)
     
+    ########## カテゴリー判定 ##########
     def classify(self, doc):
         """事後確率の対数 log(P(cat|doc)) がもっとも大きなカテゴリを返す"""
         best = None
@@ -44,6 +48,7 @@ class NaiveBayes:
                 best = cat
         return best
     
+    ########## 単語の条件付き確率取得 ##########
     def wordProb(self, word, cat):
         """単語の条件付き確率 P(word|cat) を求める"""
         # ラプラススムージングを適用
@@ -51,6 +56,7 @@ class NaiveBayes:
         # 分母はtrain()の最後で一括計算済み
         return float(self.wordcount[cat][word] + 1) / float(self.denominator[cat])
     
+    ########## カテゴリー毎の確率取得 ##########
     def score(self, doc, cat):
         """文書が与えられたときのカテゴリの事後確率の対数 log(P(cat|doc)) を求める"""
         total = sum(self.catcount.values())  # 総文書数

@@ -11,21 +11,46 @@ print('メイン処理開始')
 
 # 訓練データの読み込み
 fc = FileController()
-fc.importTrainingFile(r'.\TrainingData\*_*.txt')
+fc.importTrainingDocFile(r'.\TrainingData\*_*.txt')
 # for traingData in fc.trainingDataList:
 #     for data in traingData:
 #         print(data)
 
-
 # ナイーブベイズ分類器を訓練
 nb = NaiveBayes()
 nb.train(fc.trainingDataList)
-for category in nb.categories:
-    for vocabulary in nb.vocabularies:
-        print("( category->" + category + " vocabularies->" + vocabulary + " ) " + str(nb.wordProb(vocabulary,category)))
+# for category in nb.categories:
+#     for vocabulary in nb.vocabularies:
+#         print("( category->" + category + " vocabularies->" + vocabulary + " ) " + str(nb.wordProb(vocabulary,category)))
+
+# 学習データの生成
+# fc.exportLearningArrayCSV("categories.csv",nb.categories) # カテゴリの集合
+# fc.exportLearningArrayCSV("vocabularies.csv",nb.vocabularies) # ボキャブラリの集合
+# fc.exportLearningAssArrayListCSV("wordcount.csv",nb.wordcount) # カテゴリでの単語の出現回数
+# fc.exportLearningAssArrayCSV("catcount.csv",nb.catcount) # カテゴリの出現回数
+# fc.exportLearningAssArrayCSV("denominator.csv",nb.denominator) # P(word|cat)の分母の値
+
+# print(nb.categories)
+# print(nb.vocabularies)
+# print(nb.wordcount)
+# print(nb.catcount)
+# print(nb.denominator)
+
+# 学習データの読み込み
+# nb.categories = fc.importLearningArrayCSV("categories.csv") # カテゴリの集合
+# nb.vocabularies = fc.importLearningArrayCSV("vocabularies.csv") # ボキャブラリの集合
+# nb.wordcount = fc.importLearningAssArrayListCSV("wordcount.csv") # カテゴリでの単語の出現回数
+# nb.catcount = fc.importLearningAssArrayCSV("catcount.csv") # カテゴリの出現回数
+# nb.denominator = fc.importLearningAssArrayCSV("denominator.csv") # P(word|cat)の分母の値
+
+# print(nb.categories)
+# print(nb.vocabularies)
+# print(nb.wordcount)
+# print(nb.catcount)
+# print(nb.denominator)
 
 for category in nb.categories:
-    test = fc.importTestFile(r'.\TestData\餃子_TEST0001.txt')
+    test = fc.importTestDocFile(r'.\TestData\餃子_TEST0001.txt')
     print("log P(" + category + "|test) = ",nb.score(test,category))
 print(nb.classify(test))
 
